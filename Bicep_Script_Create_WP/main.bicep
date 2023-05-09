@@ -126,7 +126,7 @@ param appServiceStorageBlobPrefix string = 'blobstg'
 var appServiceStorageContainerName = '${appServiceStorageBlobPrefix}${uniqueString(resourceGroup().id)}'
 
 @description('Storage Sku')
-param appServiceStorageSku string = 'Standard_LRS'
+param appServiceStorageSku string = 'Standard_RAGRS'
 
 /*
 Conditional Deployment Params
@@ -190,6 +190,9 @@ resource appServiceStorageAccount 'Microsoft.Storage/storageAccounts@2022-05-01'
 @description('Wordpress Web App Storage Account Blob Container')
 resource appServiceStorageContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-05-01' = if (deployAzureStorage) {
   name: '${appServiceStorageAccount.name}/default/${appServiceStorageContainerName}'
+  properties: {
+    publicAccess: 'Blob'
+  }
 }
 
 @description('Wordpress Web App Settings')
