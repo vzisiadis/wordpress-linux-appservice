@@ -137,9 +137,6 @@ resource cdnProfile 'Microsoft.Cdn/profiles@2021-06-01' = {
 // }
 
 
-var appServiceOrigin = '${appServiceWebAppName}-azurewebsites-net'
-var storageAccountOrigin = '${storageAccountName}-blob-core-windows-net'
-
 @description('CDN Endpoint Config')
 resource cdnProfileEndPoint 'Microsoft.Cdn/profiles/endpoints@2021-06-01' =  {
   parent: cdnProfile
