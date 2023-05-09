@@ -200,7 +200,7 @@ resource cdnProfileEndPoint 'Microsoft.Cdn/profiles/endpoints@2021-06-01' =  {
       }      
     ]
     defaultOriginGroup: {
-      id: resourceId('Microsoft.Cdn/profiles/endpoints/origingroups',cdnProfileName,cdnEndpointName,'storage-origin-group')
+      id: resourceId('Microsoft.Cdn/profiles/endpoints/origingroups',cdnProfileName,cdnEndpointName,'blob-origin-group')
     }
     contentTypesToCompress: [
       'application/eot'
