@@ -1,7 +1,7 @@
 #!/bin/sh
 environment="dev"
 # resourceGroupName="wordpress-appsvc-rg"
-resourceGroupName="rg-wordpressbicep-"$environment"-we-001"
+resourceGroupName="rg-wordpress-appsvc-$environment"
 location="westeurope"
 bicepMain="main.bicep"
 bicepParamsFile="wp.dev.parameters.json"

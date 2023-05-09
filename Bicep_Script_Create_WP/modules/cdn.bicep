@@ -20,6 +20,12 @@ param originResponseTimeoutSeconds int = 60
 @description('Web app to host as origin server')
 param appServiceWebAppName string 
 
+@description('Storage account to host as the origin server for static files')
+param storageAccountName string
+
+@description('Storage account container to be used on the origin override rules')
+param blobContainerName string
+
 @description('Allowed CDN SKUs')
 @allowed([
   'Standard_Microsoft' 
@@ -29,6 +35,7 @@ param cdnType string = 'Standard_Microsoft'
 
 @description('Tags')
 param tags object = {}
+
 
 
 @description('CDN Profile')
@@ -44,6 +51,95 @@ resource cdnProfile 'Microsoft.Cdn/profiles@2021-06-01' = {
   }
 }
 
+// @description('CDN Origin Group for App Service')
+// resource cdnOriginGroupAppService 'Microsoft.Cdn/profiles/originGroups@2021-06-01' =  {
+//   parent: cdnProfile
+//   name: 'app-origin-group'
+//   // properties: {
+//   //   origins: [
+//   //     {
+//   //       id: cdnOriginAppService.id
+//   //     }
+//   //   ]
+//   // }
+// }
+
+// @description('CDN Origin Group for Storage Account')
+// resource cdnOriginGroupStorageAccount 'Microsoft.Cdn/profiles/originGroups@2021-06-01' =  {
+//   parent: cdnProfile
+//   name: 'storage-origin-group'
+//   properties: {
+//     // origins: [
+//     //   {
+//     //     id: cdnOriginStorageAccount.id
+//     //   }
+//     // ]
+//   }
+// }
+
+// @description('CDN Origin for App Service')
+// resource cdnOriginAppService 'Microsoft.Cdn/profiles/originGroups/origins@2021-06-01' =  {
+//   parent: cdnOriginGroupAppService
+//   name: '${appServiceWebAppName}-azurewebsites-net'
+//   properties: {
+//     hostName: '${appServiceWebAppName}.azurewebsites.net'
+//     httpPort: 80
+//     httpsPort: 443
+//     originHostHeader: '${appServiceWebAppName}.azurewebsites.net'
+//     priority: 1
+//     weight: 1000
+//     enabled: true
+//   }
+// }
+
+// @description('CDN Origin for Storage Account')
+// resource cdnOriginStorageAccount 'Microsoft.Cdn/profiles/originGroups/origins@2021-06-01' =  {
+//   parent: cdnOriginGroupStorageAccount
+//   name: '${storageAccountName}-blob-core-windows-net'
+//   properties: {
+//     hostName: '${storageAccountName}.blob.core.windows.net'
+//     httpPort: 80
+//     httpsPort: 443
+//     originHostHeader: '${storageAccountName}.blob.core.windows.net'
+//     priority: 1
+//     weight: 1000
+//     enabled: true
+//   }
+// }
+
+
+
+
+// @description('CDN Origin Group for App Service')
+// resource cdnOriginGroupAppService 'Microsoft.Cdn/profiles/endpoints/originGroups@2021-06-01' =  {
+//   parent: cdnProfileEndPoint
+//   name: 'app-origin-group'
+//   properties: {
+//     origins: [
+//       {
+//         id: cdnOriginAppService.id
+//       }
+//     ]
+//   }
+// }
+
+// @description('CDN Origin Group for Storage Account')
+// resource cdnOriginGroupStorageAccount 'Microsoft.Cdn/profiles/endpoints/originGroups@2021-06-01' =  {
+//   parent: cdnProfileEndPoint
+//   name: 'storage-origin-group'
+//   properties: {
+//     origins: [
+//       {
+//         id: cdnOriginStorageAccount.id
+//       }
+//     ]
+//   }
+// }
+
+
+var appServiceOrigin = '${appServiceWebAppName}-azurewebsites-net'
+var storageAccountOrigin = '${storageAccountName}-blob-core-windows-net'
+
 @description('CDN Endpoint Config')
 resource cdnProfileEndPoint 'Microsoft.Cdn/profiles/endpoints@2021-06-01' =  {
   parent: cdnProfile
@@ -52,10 +148,12 @@ resource cdnProfileEndPoint 'Microsoft.Cdn/profiles/endpoints@2021-06-01' =  {
   properties: {
     isHttpAllowed: true
     isHttpsAllowed: true
-    originHostHeader: '${appServiceWebAppName}.azurewebsites.net'
+    // originHostHeader: '${appServiceWebAppName}.azurewebsites.net'
+    isCompressionEnabled: true
+    queryStringCachingBehavior: 'IgnoreQueryString'
     origins: [
       {
-        name: '${appServiceWebAppName}-azurewebsites-net'
+        name: 'appServiceOrigin'
         properties: {
           hostName: '${appServiceWebAppName}.azurewebsites.net'
           httpPort: 80
@@ -66,8 +164,44 @@ resource cdnProfileEndPoint 'Microsoft.Cdn/profiles/endpoints@2021-06-01' =  {
           enabled: true
         }
       }
+      {
+        name: 'storageAccountOrigin'
+        properties: {
+          hostName: '${storageAccountName}.blob.core.windows.net'
+          httpPort: 80
+          httpsPort: 443
+          originHostHeader: '${storageAccountName}.blob.core.windows.net'
+          priority: 1
+          weight: 1000
+          enabled: true
+        }
+      }
     ]
-    isCompressionEnabled: true
+    originGroups: [
+      {
+        name: 'app-origin-group'
+        properties: {
+          origins: [
+            {
+              id: resourceId('Microsoft.Cdn/profiles/endpoints/origins',cdnProfileName,cdnEndpointName,'appServiceOrigin')
+            }
+          ]
+        }
+      }
+      {
+        name: 'blob-origin-group'
+        properties: {
+          origins: [
+            {
+              id: resourceId('Microsoft.Cdn/profiles/endpoints/origins',cdnProfileName,cdnEndpointName,'storageAccountOrigin')
+            }
+          ]
+        }
+      }      
+    ]
+    defaultOriginGroup: {
+      id: resourceId('Microsoft.Cdn/profiles/endpoints/origingroups',cdnProfileName,cdnEndpointName,'storage-origin-group')
+    }
     contentTypesToCompress: [
       'application/eot'
       'application/font'
@@ -111,8 +245,55 @@ resource cdnProfileEndPoint 'Microsoft.Cdn/profiles/endpoints@2021-06-01' =  {
       'text/x-component'
       'text/x-java-source'
     ]
+    deliveryPolicy: {
+      rules: [
+        {
+          name: 'originOverrideRule'
+          order: 1
+          conditions: [
+            { 
+            name: 'UrlPath'
+            parameters: {
+              typeName: 'DeliveryRuleUrlPathMatchConditionParameters'
+              operator: 'BeginsWith'
+              negateCondition: true
+              matchValues: [
+                '${blobContainerName}/wp-content/uploads/'
+                ]
+              transforms: [
+                'Lowercase'
+              ]
+            } 
+           }
+          ]
+         actions:[
+          {
+            name: 'OriginGroupOverride'
+            parameters: {
+              typeName: 'DeliveryRuleOriginGroupOverrideActionParameters'
+              originGroup: {
+                id: resourceId('Microsoft.Cdn/profiles/endpoints/origingroups',cdnProfileName,cdnEndpointName,'app-origin-group')
+              }
+            }
+          }
+          {
+            name: 'UrlRewrite'
+            parameters: {
+              typeName: 'DeliveryRuleUrlRewriteActionParameters'
+              sourcePattern: '/${blobContainerName}/'
+              destination: '/'
+              preserveUnmatchedPath: true
+            }
+          }
+         ]
+        }
+      ]
+    }
   }
 }
+
+
+
 
 @description('CDN Profile Endpoint ID')
 output cdnProfileId string = cdnProfileEndPoint.id

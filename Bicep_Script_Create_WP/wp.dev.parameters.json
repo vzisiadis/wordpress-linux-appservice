@@ -3,16 +3,16 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "appServiceWebAppPrefix": {
-            "value": "wp-app-web"
+            "value": "app-wp-web"
         },       
         "appServicePlanName": {
             "value": "wp-appsvc-plan"
         },
         "deployAzureStorage": {
-            "value": false
+            "value": true
         },
         "deployCDN": {
-            "value": false
+            "value": true
         },
         "deployFrontDoor": {
             "value": false
@@ -45,10 +45,10 @@
             "value": "wp-app-dbserver"
         },
         "serverUsername": {
-            "value": null
+            "value": "<DB_USERNAME>"
         },
         "serverPassword": {
-            "value": null
+            "value": "<DB_PASSWORD>"
         },
         "databaseName": {
             "value": "wp-app-database"
@@ -57,13 +57,13 @@
             "value": "WordPress On Azure App services"
         },
         "wordpressAdminEmail": {
-            "value": null
+            "value": "<WP_MAIL>"
         },
         "wordpressUsername": {
-            "value": null
+            "value": "<WP_USERNAME>"
         },
         "wordpressPassword": {
-            "value": null
+            "value": "<WP_PASSWORD>"
         },
         "cdnProfileName": {
             "value": "wp-appsvc-cdnprofile"
@@ -87,25 +87,16 @@
             "value": "wpappsvcruleset"
         },
         "vnetName": {
-            "value": "wp-app-vnet"
+            "value": "vnet-wordpressbicep-dev-we-001"
         },
         "subnetForApp": {
-            "value": "wp-app-subnet"
+            "value": "app-snet"
         },
         "subnetForDb": {
-            "value": "wp-db-subnet"
+            "value": "db-snet"
         },
         "privateDnsZoneNameForDb": {
             "value": "wp-appsvc-privatelink.mysql.database.azure.com"
-        },
-        "vnetAddress": {
-            "value": "10.0.0.0/16"
-        },
-        "subnetAddressForApp": {
-            "value": "10.0.0.0/24"
-        },
-        "subnetAddressForDb": {
-            "value": "10.0.1.0/24"
         }
     }
 }

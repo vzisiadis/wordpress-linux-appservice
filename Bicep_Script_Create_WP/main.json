@@ -1,0 +1,1245 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.14.85.62628",
+      "templateHash": "9698282374613227354"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {
+        "AppProfile": "Wordpress"
+      }
+    },
+    "appServicePlanName": {
+      "type": "string",
+      "defaultValue": "wp-appsvc-plan"
+    },
+    "appServiceWebAppPrefix": {
+      "type": "string",
+      "defaultValue": "wp-app-web"
+    },
+    "appServiceWebAppName": {
+      "type": "string",
+      "defaultValue": "[format('{0}{1}', parameters('appServiceWebAppPrefix'), uniqueString(resourceGroup().id))]"
+    },
+    "appSvcSku": {
+      "type": "string",
+      "defaultValue": "PremiumV2"
+    },
+    "appSvcSkuCode": {
+      "type": "string",
+      "defaultValue": "P1v2"
+    },
+    "workerSizeId": {
+      "type": "int",
+      "defaultValue": 3
+    },
+    "numberOfWorkers": {
+      "type": "int",
+      "defaultValue": 1
+    },
+    "kind": {
+      "type": "string",
+      "defaultValue": "linux"
+    },
+    "reserved": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "alwaysOn": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "linuxFxVersion": {
+      "type": "string",
+      "defaultValue": "DOCKER|mcr.microsoft.com/appsvc/wordpress-alpine-php:latest"
+    },
+    "dockerRegistryUrl": {
+      "type": "string",
+      "defaultValue": "https://mcr.microsoft.com"
+    },
+    "storageSizeGB": {
+      "type": "int",
+      "defaultValue": 128
+    },
+    "storageIops": {
+      "type": "int",
+      "defaultValue": 700
+    },
+    "storageAutoGrow": {
+      "type": "string",
+      "defaultValue": "Enabled"
+    },
+    "backupRetentionDays": {
+      "type": "int",
+      "defaultValue": 7
+    },
+    "geoRedundantBackup": {
+      "type": "string",
+      "defaultValue": "Disabled"
+    },
+    "charset": {
+      "type": "string",
+      "defaultValue": "utf8"
+    },
+    "collation": {
+      "type": "string",
+      "defaultValue": "utf8_general_ci"
+    },
+    "vmName": {
+      "type": "string",
+      "defaultValue": "Standard_D2ds_v4"
+    },
+    "serverEdition": {
+      "type": "string",
+      "defaultValue": "GeneralPurpose"
+    },
+    "databaseName": {
+      "type": "string",
+      "defaultValue": "wp-app-database"
+    },
+    "databaseVersion": {
+      "type": "string",
+      "defaultValue": "8.0.21",
+      "allowedValues": [
+        "5.7",
+        "8.0.21"
+      ]
+    },
+    "serverName": {
+      "type": "string"
+    },
+    "serverUsername": {
+      "type": "string"
+    },
+    "serverPassword": {
+      "type": "securestring"
+    },
+    "wordpressTitle": {
+      "type": "string",
+      "defaultValue": "WordPress On Azure App services"
+    },
+    "wpLocaleCode": {
+      "type": "string",
+      "defaultValue": "en_US"
+    },
+    "wordpressAdminEmail": {
+      "type": "string"
+    },
+    "wordpressUsername": {
+      "type": "string"
+    },
+    "wordpressPassword": {
+      "type": "securestring"
+    },
+    "cdnProfileName": {
+      "type": "string"
+    },
+    "cdnEndpointName": {
+      "type": "string"
+    },
+    "afdProfileName": {
+      "type": "string",
+      "defaultValue": "wp-appsvc-afdprofile"
+    },
+    "afdEndpointName": {
+      "type": "string",
+      "defaultValue": "wp-appsvc-afdEndPoint"
+    },
+    "afdOriginGroupName": {
+      "type": "string",
+      "defaultValue": "wp-appsvc-afdOriginGroup"
+    },
+    "afdOriginsName": {
+      "type": "string",
+      "defaultValue": "wp-appsvc-afdOrigins"
+    },
+    "afdRulesetName": {
+      "type": "string",
+      "defaultValue": "wpappsvcruleset"
+    },
+    "vnetName": {
+      "type": "string",
+      "defaultValue": "wp-app-vnet"
+    },
+    "subnetForApp": {
+      "type": "string",
+      "defaultValue": "wp-app-subnet"
+    },
+    "subnetForDb": {
+      "type": "string",
+      "defaultValue": "wp-db-subnet"
+    },
+    "privateDnsZoneNameForDb": {
+      "type": "string",
+      "defaultValue": "wp-appsvc-privatelink.mysql.database.azure.com"
+    },
+    "vnetAddress": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16"
+    },
+    "subnetAddressForApp": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24"
+    },
+    "subnetAddressForDb": {
+      "type": "string",
+      "defaultValue": "10.0.1.0/24"
+    },
+    "appServiceStorageAcctPrefix": {
+      "type": "string",
+      "defaultValue": "wpstg"
+    },
+    "appServiceStorageBlobPrefix": {
+      "type": "string",
+      "defaultValue": "blobstg"
+    },
+    "appServiceStorageSku": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "metadata": {
+        "description": "Storage Sku"
+      }
+    },
+    "deployAzureStorage": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "deployCDN": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "deployFrontDoor": {
+      "type": "bool",
+      "defaultValue": false
+    }
+  },
+  "variables": {
+    "appServiceStorageAcctName": "[format('{0}{1}', parameters('appServiceStorageAcctPrefix'), uniqueString(resourceGroup().id))]",
+    "appServiceStorageContainerName": "[format('{0}{1}', parameters('appServiceStorageBlobPrefix'), uniqueString(resourceGroup().id))]",
+    "blobStorageUrl": "[if(parameters('deployAzureStorage'), format('{0}.blob.{1}', variables('appServiceStorageAcctName'), environment().suffixes.storage), 'null')]",
+    "storageAccountName": "[if(parameters('deployAzureStorage'), variables('appServiceStorageAcctName'), 'null')]"
+  },
+  "resources": [
+    {
+      "condition": "[parameters('deployAzureStorage')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-05-01",
+      "name": "[variables('appServiceStorageAcctName')]",
+      "kind": "StorageV2",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "sku": {
+        "name": "[parameters('appServiceStorageSku')]"
+      },
+      "properties": {
+        "allowCrossTenantReplication": true,
+        "minimumTlsVersion": "TLS1_2",
+        "allowBlobPublicAccess": true,
+        "allowSharedKeyAccess": true,
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "virtualNetworkRules": [],
+          "ipRules": [],
+          "defaultAction": "Allow"
+        },
+        "supportsHttpsTrafficOnly": true,
+        "encryption": {
+          "requireInfrastructureEncryption": false,
+          "services": {
+            "file": {
+              "keyType": "Account",
+              "enabled": true
+            },
+            "blob": {
+              "keyType": "Account",
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        },
+        "accessTier": "Hot"
+      },
+      "metadata": {
+        "description": "Wordpress Web App Storage Account"
+      }
+    },
+    {
+      "condition": "[parameters('deployAzureStorage')]",
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}/default/{1}', variables('appServiceStorageAcctName'), variables('appServiceStorageContainerName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('appServiceStorageAcctName'))]"
+      ],
+      "metadata": {
+        "description": "Wordpress Web App Storage Account Blob Container"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-03-01",
+      "name": "[parameters('appServiceWebAppName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "DOCKER_REGISTRY_SERVER_URL",
+              "value": "[parameters('dockerRegistryUrl')]"
+            },
+            {
+              "name": "DATABASE_HOST",
+              "value": "[format('{0}.mysql.database.azure.com', parameters('serverName'))]"
+            },
+            {
+              "name": "DATABASE_NAME",
+              "value": "[parameters('databaseName')]"
+            },
+            {
+              "name": "DATABASE_USERNAME",
+              "value": "[parameters('serverUsername')]"
+            },
+            {
+              "name": "DATABASE_PASSWORD",
+              "value": "[parameters('serverPassword')]"
+            },
+            {
+              "name": "WORDPRESS_ADMIN_EMAIL",
+              "value": "[parameters('wordpressAdminEmail')]"
+            },
+            {
+              "name": "WORDPRESS_ADMIN_USER",
+              "value": "[parameters('wordpressUsername')]"
+            },
+            {
+              "name": "WORDPRESS_ADMIN_PASSWORD",
+              "value": "[parameters('wordpressPassword')]"
+            },
+            {
+              "name": "WORDPRESS_TITLE",
+              "value": "[parameters('wordpressTitle')]"
+            },
+            {
+              "name": "WEBSITES_CONTAINER_START_TIME_LIMIT",
+              "value": "1800"
+            },
+            {
+              "name": "WORDPRESS_LOCALE_CODE",
+              "value": "[parameters('wpLocaleCode')]"
+            },
+            {
+              "name": "SETUP_PHPMYADMIN",
+              "value": "true"
+            },
+            {
+              "name": "CDN_ENABLED",
+              "value": "[format('{0}', parameters('deployCDN'))]"
+            },
+            {
+              "name": "CDN_ENDPOINT",
+              "value": "[format('{0}.azureedge.net', parameters('cdnEndpointName'))]"
+            },
+            {
+              "name": "BLOB_CONTAINER_NAME",
+              "value": "[variables('appServiceStorageContainerName')]"
+            },
+            {
+              "name": "BLOB_STORAGE_ENABLED",
+              "value": "[format('{0}', parameters('deployAzureStorage'))]"
+            },
+            {
+              "name": "BLOB_STORAGE_URL",
+              "value": "[variables('blobStorageUrl')]"
+            },
+            {
+              "name": "STORAGE_ACCOUNT_KEY",
+              "value": "[if(parameters('deployAzureStorage'), format('{0}', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('appServiceStorageAcctName')), '2022-05-01').keys[0].value), 'null')]"
+            },
+            {
+              "name": "STORAGE_ACCOUNT_NAME",
+              "value": "[variables('storageAccountName')]"
+            },
+            {
+              "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+              "value": "[format('{0}', parameters('deployAzureStorage'))]"
+            },
+            {
+              "name": "WORDPRESS_LOCAL_STORAGE_CACHE_ENABLED",
+              "value": "true"
+            }
+          ],
+          "connectionStrings": [],
+          "linuxFxVersion": "[parameters('linuxFxVersion')]",
+          "vnetRouteAllEnabled": true
+        },
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "clientAffinityEnabled": false
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('appServiceStorageAcctName'))]",
+        "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('serverName'))]",
+        "[resourceId('Microsoft.DBforMySQL/flexibleServers/databases', parameters('serverName'), parameters('databaseName'))]"
+      ],
+      "metadata": {
+        "description": "Wordpress Web App Settings"
+      }
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2022-03-01",
+      "name": "[parameters('appServicePlanName')]",
+      "location": "[parameters('location')]",
+      "kind": "[parameters('kind')]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "targetWorkerCount": "[parameters('numberOfWorkers')]",
+        "targetWorkerSizeId": "[parameters('workerSizeId')]",
+        "reserved": "[parameters('reserved')]"
+      },
+      "sku": {
+        "tier": "[parameters('appSvcSku')]",
+        "name": "[parameters('appSvcSkuCode')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('serverName'))]"
+      ],
+      "metadata": {
+        "description": "App service hostingplan"
+      }
+    },
+    {
+      "type": "Microsoft.DBforMySQL/flexibleServers",
+      "apiVersion": "2021-05-01",
+      "name": "[parameters('serverName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "version": "[parameters('databaseVersion')]",
+        "administratorLogin": "[parameters('serverUsername')]",
+        "administratorLoginPassword": "[parameters('serverPassword')]",
+        "storage": {
+          "storageSizeGB": "[parameters('storageSizeGB')]",
+          "iops": "[parameters('storageIops')]",
+          "autoGrow": "[parameters('storageAutoGrow')]"
+        },
+        "backup": {
+          "backupRetentionDays": "[parameters('backupRetentionDays')]",
+          "geoRedundantBackup": "[parameters('geoRedundantBackup')]"
+        },
+        "network": {
+          "privateDnsZoneResourceId": "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZoneNameForDb'))]",
+          "delegatedSubnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetForDb'))]"
+        }
+      },
+      "sku": {
+        "name": "[parameters('vmName')]",
+        "tier": "[parameters('serverEdition')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZoneNameForDb'))]",
+        "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', parameters('privateDnsZoneNameForDb'), format('{0}-vnetlink', parameters('privateDnsZoneNameForDb')))]"
+      ],
+      "metadata": {
+        "description": "MySQL Server - Flexible server"
+      }
+    },
+    {
+      "type": "Microsoft.DBforMySQL/flexibleServers/databases",
+      "apiVersion": "2021-05-01",
+      "name": "[format('{0}/{1}', parameters('serverName'), parameters('databaseName'))]",
+      "properties": {
+        "charset": "[parameters('charset')]",
+        "collation": "[parameters('collation')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('serverName'))]"
+      ],
+      "metadata": {
+        "description": "Wordpress DB name"
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('privateDnsZoneNameForDb')]",
+      "location": "global",
+      "metadata": {
+        "description": "Private DNS Zone for Database"
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', parameters('privateDnsZoneNameForDb'), format('{0}-vnetlink', parameters('privateDnsZoneNameForDb')))]",
+      "location": "global",
+      "properties": {
+        "virtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+        },
+        "registrationEnabled": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZoneNameForDb'))]"
+      ],
+      "metadata": {
+        "description": "Link DNS Zone to VNet"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/networkConfig",
+      "apiVersion": "2022-03-01",
+      "name": "[format('{0}/{1}', parameters('appServiceWebAppName'), 'virtualNetwork')]",
+      "properties": {
+        "subnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetForApp'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('appServiceWebAppName'))]",
+        "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', parameters('privateDnsZoneNameForDb'), format('{0}-vnetlink', parameters('privateDnsZoneNameForDb')))]"
+      ],
+      "metadata": {
+        "description": "Configure the Web app to use the Subnet"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "name": "[format('{0}/{1}', parameters('appServiceWebAppName'), 'web')]",
+      "properties": {
+        "alwaysOn": "[parameters('alwaysOn')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites/networkConfig', parameters('appServiceWebAppName'), 'virtualNetwork')]",
+        "[resourceId('Microsoft.Web/sites', parameters('appServiceWebAppName'))]"
+      ],
+      "metadata": {
+        "description": "Web app configuration"
+      }
+    },
+    {
+      "condition": "[parameters('deployCDN')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[parameters('cdnProfileName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "cdnProfileName": {
+            "value": "[parameters('cdnProfileName')]"
+          },
+          "cdnEndpointName": {
+            "value": "[parameters('cdnEndpointName')]"
+          },
+          "appServiceWebAppName": {
+            "value": "[parameters('appServiceWebAppName')]"
+          },
+          "storageAccountName": {
+            "value": "[variables('storageAccountName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.14.85.62628",
+              "templateHash": "9685533843926215292"
+            }
+          },
+          "parameters": {
+            "cdnProfileName": {
+              "type": "string",
+              "metadata": {
+                "description": "CDN profile name"
+              }
+            },
+            "cdnEndpointName": {
+              "type": "string",
+              "metadata": {
+                "description": "CDN endpoint name"
+              }
+            },
+            "originResponseTimeoutSeconds": {
+              "type": "int",
+              "defaultValue": 60,
+              "metadata": {
+                "description": "Origin timeout period"
+              }
+            },
+            "appServiceWebAppName": {
+              "type": "string",
+              "metadata": {
+                "description": "Web app to host as origin server"
+              }
+            },
+            "storageAccountName": {
+              "type": "string",
+              "metadata": {
+                "description": "Storage account to host as the origin server for static files"
+              }
+            },
+            "cdnType": {
+              "type": "string",
+              "defaultValue": "Standard_Microsoft",
+              "allowedValues": [
+                "Standard_Microsoft"
+              ],
+              "metadata": {
+                "description": "Allowed CDN SKUs"
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Tags"
+              }
+            }
+          },
+          "variables": {
+            "appServiceOrigin": "[format('{0}-azurewebsites-net', parameters('appServiceWebAppName'))]",
+            "storageAccountOrigin": "[format('{0}-blob-core-windows-net', parameters('storageAccountName'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Cdn/profiles",
+              "apiVersion": "2021-06-01",
+              "name": "[parameters('cdnProfileName')]",
+              "location": "Global",
+              "sku": {
+                "name": "[parameters('cdnType')]"
+              },
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "originResponseTimeoutSeconds": "[parameters('originResponseTimeoutSeconds')]"
+              },
+              "metadata": {
+                "description": "CDN Profile"
+              }
+            },
+            {
+              "type": "Microsoft.Cdn/profiles/endpoints",
+              "apiVersion": "2021-06-01",
+              "name": "[format('{0}/{1}', parameters('cdnProfileName'), parameters('cdnEndpointName'))]",
+              "location": "Global",
+              "properties": {
+                "isHttpAllowed": true,
+                "isHttpsAllowed": true,
+                "isCompressionEnabled": true,
+                "queryStringCachingBehavior": "IgnoreQueryString",
+                "origins": [
+                  {
+                    "name": "appServiceOrigin",
+                    "properties": {
+                      "hostName": "[format('{0}.azurewebsites.net', parameters('appServiceWebAppName'))]",
+                      "httpPort": 80,
+                      "httpsPort": 443,
+                      "originHostHeader": "[format('{0}.azurewebsites.net', parameters('appServiceWebAppName'))]",
+                      "priority": 1,
+                      "weight": 1000,
+                      "enabled": true
+                    }
+                  },
+                  {
+                    "name": "storageAccountOrigin",
+                    "properties": {
+                      "hostName": "[format('{0}.blob.core.windows.net', parameters('storageAccountName'))]",
+                      "httpPort": 80,
+                      "httpsPort": 443,
+                      "originHostHeader": "[format('{0}.blob.core.windows.net', parameters('storageAccountName'))]",
+                      "priority": 1,
+                      "weight": 1000,
+                      "enabled": true
+                    }
+                  }
+                ],
+                "originGroups": [
+                  {
+                    "name": "app-origin-group",
+                    "properties": {
+                      "origins": [
+                        {
+                          "id": "[resourceId('Microsoft.Cdn/profiles/endpoints/origins', parameters('cdnProfileName'), parameters('cdnEndpointName'), 'appServiceOrigin')]"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "name": "storage-origin-group",
+                    "properties": {
+                      "origins": [
+                        {
+                          "id": "[resourceId('Microsoft.Cdn/profiles/endpoints/origins', parameters('cdnProfileName'), parameters('cdnEndpointName'), 'storageAccountOrigin')]"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "defaultOriginGroup": {
+                  "id": "[resourceId('Microsoft.Cdn/profiles/endpoints/origingroups', parameters('cdnProfileName'), parameters('cdnEndpointName'), 'storage-origin-group')]"
+                },
+                "contentTypesToCompress": [
+                  "application/eot",
+                  "application/font",
+                  "application/font-sfnt",
+                  "application/javascript",
+                  "application/json",
+                  "application/opentype",
+                  "application/otf",
+                  "application/pkcs7-mime",
+                  "application/truetype",
+                  "application/ttf",
+                  "application/vnd.ms-fontobject",
+                  "application/xhtml+xml",
+                  "application/xml",
+                  "application/xml+rss",
+                  "application/x-font-opentype",
+                  "application/x-font-truetype",
+                  "application/x-font-ttf",
+                  "application/x-httpd-cgi",
+                  "application/x-javascript",
+                  "application/x-mpegurl",
+                  "application/x-opentype",
+                  "application/x-otf",
+                  "application/x-perl",
+                  "application/x-ttf",
+                  "font/eot",
+                  "font/ttf",
+                  "font/otf",
+                  "font/opentype",
+                  "image/svg+xml",
+                  "text/css",
+                  "text/csv",
+                  "text/html",
+                  "text/javascript",
+                  "text/js",
+                  "text/plain",
+                  "text/richtext",
+                  "text/tab-separated-values",
+                  "text/xml",
+                  "text/x-script",
+                  "text/x-component",
+                  "text/x-java-source"
+                ],
+                "deliveryPolicy": {
+                  "rules": [
+                    {
+                      "name": "originOverrideRule",
+                      "order": 1,
+                      "conditions": [
+                        {
+                          "name": "UrlPath",
+                          "parameters": {
+                            "typeName": "DeliveryRuleUrlPathMatchConditionParameters",
+                            "operator": "BeginsWith",
+                            "negateCondition": true,
+                            "matchValues": [
+                              "[format('blob{0}/wp-content/uploads', parameters('storageAccountName'))]"
+                            ],
+                            "transforms": [
+                              "Lowercase"
+                            ]
+                          }
+                        }
+                      ],
+                      "actions": [
+                        {
+                          "name": "OriginGroupOverride",
+                          "parameters": {
+                            "typeName": "DeliveryRuleOriginGroupOverrideActionParameters",
+                            "originGroup": {
+                              "id": "[resourceId('Microsoft.Cdn/profiles/endpoints/origingroups', parameters('cdnProfileName'), parameters('cdnEndpointName'), 'app-origin-group')]"
+                            }
+                          }
+                        },
+                        {
+                          "name": "UrlRewrite",
+                          "parameters": {
+                            "typeName": "DeliveryRuleUrlRewriteActionParameters",
+                            "sourcePattern": "[format('/blob{0}/', parameters('storageAccountName'))]",
+                            "destination": "/",
+                            "preserveUnmatchedPath": true
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles', parameters('cdnProfileName'))]"
+              ],
+              "metadata": {
+                "description": "CDN Endpoint Config"
+              }
+            }
+          ],
+          "outputs": {
+            "cdnProfileId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Cdn/profiles/endpoints', parameters('cdnProfileName'), parameters('cdnEndpointName'))]",
+              "metadata": {
+                "description": "CDN Profile Endpoint ID"
+              }
+            },
+            "cdnProfileEndPointId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Cdn/profiles/endpoints', parameters('cdnProfileName'), parameters('cdnEndpointName'))]",
+              "metadata": {
+                "description": "CDN  Endpoint ID"
+              }
+            },
+            "cdnProfileEndPointHostName": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', parameters('cdnProfileName'), parameters('cdnEndpointName')), '2021-06-01').hostName]",
+              "metadata": {
+                "description": "CDN Profile Host Name"
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('appServiceStorageAcctName'))]",
+        "[resourceId('Microsoft.Web/sites', parameters('appServiceWebAppName'))]",
+        "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('serverName'))]"
+      ],
+      "metadata": {
+        "description": "CDN Profile and Endpoint Module"
+      }
+    },
+    {
+      "condition": "[parameters('deployFrontDoor')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[parameters('afdProfileName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "afdProfileName": {
+            "value": "[parameters('afdProfileName')]"
+          },
+          "afdEndpointName": {
+            "value": "[parameters('afdEndpointName')]"
+          },
+          "afdOriginGroupName": {
+            "value": "[parameters('afdOriginGroupName')]"
+          },
+          "afdOriginsName": {
+            "value": "[parameters('afdOriginsName')]"
+          },
+          "afdRulesetName": {
+            "value": "[parameters('afdRulesetName')]"
+          },
+          "appServiceWebAppName": {
+            "value": "[parameters('appServiceWebAppName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.14.85.62628",
+              "templateHash": "16316089165141640894"
+            }
+          },
+          "parameters": {
+            "afdProfileName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of AFD Profile"
+              }
+            },
+            "afdEndpointName": {
+              "type": "string",
+              "metadata": {
+                "description": "AFD Endpoint Name"
+              }
+            },
+            "enableAfdEndpoint": {
+              "type": "string",
+              "defaultValue": "Enabled",
+              "allowedValues": [
+                "Enabled",
+                "Disabled"
+              ],
+              "metadata": {
+                "description": "AFD Endpoint State"
+              }
+            },
+            "afdDefaultRouteName": {
+              "type": "string",
+              "defaultValue": "default-route",
+              "metadata": {
+                "description": "AFD Default route name"
+              }
+            },
+            "afdOriginGroupName": {
+              "type": "string",
+              "metadata": {
+                "description": "AFD Origin Group Name"
+              }
+            },
+            "afdOriginsName": {
+              "type": "string",
+              "metadata": {
+                "description": "AFD Origins Name"
+              }
+            },
+            "appServiceWebAppName": {
+              "type": "string",
+              "metadata": {
+                "description": "Origin Host"
+              }
+            },
+            "skuName": {
+              "type": "string",
+              "defaultValue": "Standard_AzureFrontDoor",
+              "metadata": {
+                "description": "Name of Azure CDN SKU"
+              },
+              "allowedValues": [
+                "Premium_AzureFrontDoor",
+                "Standard_AzureFrontDoor"
+              ]
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Tags"
+              }
+            },
+            "originEnabledState": {
+              "type": "string",
+              "defaultValue": "Enabled",
+              "allowedValues": [
+                "Enabled",
+                "Disabled"
+              ],
+              "metadata": {
+                "description": "Enabled State"
+              }
+            },
+            "originResponseTimeoutSeconds": {
+              "type": "int",
+              "defaultValue": 60,
+              "metadata": {
+                "description": "Origin timeout period"
+              }
+            },
+            "afdRulesetName": {
+              "type": "string",
+              "metadata": {
+                "description": "AFD Ruleset name"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Cdn/profiles",
+              "apiVersion": "2021-06-01",
+              "name": "[parameters('afdProfileName')]",
+              "location": "Global",
+              "tags": "[parameters('tags')]",
+              "sku": {
+                "name": "[parameters('skuName')]"
+              },
+              "properties": {
+                "originResponseTimeoutSeconds": "[parameters('originResponseTimeoutSeconds')]"
+              },
+              "metadata": {
+                "description": "Create AFD Profile"
+              }
+            },
+            {
+              "type": "Microsoft.Cdn/profiles/afdEndpoints",
+              "apiVersion": "2021-06-01",
+              "name": "[format('{0}/{1}', parameters('afdProfileName'), parameters('afdEndpointName'))]",
+              "location": "Global",
+              "properties": {
+                "enabledState": "[parameters('enableAfdEndpoint')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles', parameters('afdProfileName'))]"
+              ],
+              "metadata": {
+                "description": "Create AFD Endpoint"
+              }
+            },
+            {
+              "type": "Microsoft.Cdn/profiles/afdEndpoints/routes",
+              "apiVersion": "2022-05-01-preview",
+              "name": "[format('{0}/{1}/{2}', parameters('afdProfileName'), parameters('afdEndpointName'), parameters('afdDefaultRouteName'))]",
+              "properties": {
+                "customDomains": [],
+                "originGroup": {
+                  "id": "[resourceId('Microsoft.Cdn/profiles/originGroups', parameters('afdProfileName'), parameters('afdOriginGroupName'))]"
+                },
+                "ruleSets": [
+                  {
+                    "id": "[resourceId('Microsoft.Cdn/profiles/ruleSets', parameters('afdProfileName'), parameters('afdRulesetName'))]"
+                  }
+                ],
+                "supportedProtocols": [
+                  "Http",
+                  "Https"
+                ],
+                "patternsToMatch": [
+                  "/*"
+                ],
+                "forwardingProtocol": "MatchRequest",
+                "linkToDefaultDomain": "Enabled",
+                "httpsRedirect": "Enabled",
+                "enabledState": "Enabled"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/afdEndpoints', parameters('afdProfileName'), parameters('afdEndpointName'))]",
+                "[resourceId('Microsoft.Cdn/profiles/originGroups', parameters('afdProfileName'), parameters('afdOriginGroupName'))]",
+                "[resourceId('Microsoft.Cdn/profiles/ruleSets', parameters('afdProfileName'), parameters('afdRulesetName'))]"
+              ],
+              "metadata": {
+                "description": "AFD Endpoint Route"
+              }
+            },
+            {
+              "type": "Microsoft.Cdn/profiles/originGroups",
+              "apiVersion": "2021-06-01",
+              "name": "[format('{0}/{1}', parameters('afdProfileName'), parameters('afdOriginGroupName'))]",
+              "properties": {
+                "loadBalancingSettings": {
+                  "sampleSize": 4,
+                  "successfulSamplesRequired": 3,
+                  "additionalLatencyInMilliseconds": 50
+                },
+                "healthProbeSettings": {
+                  "probePath": "/",
+                  "probeRequestType": "GET",
+                  "probeProtocol": "Https",
+                  "probeIntervalInSeconds": 100
+                },
+                "sessionAffinityState": "Disabled"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles', parameters('afdProfileName'))]"
+              ],
+              "metadata": {
+                "description": "Origin Groups"
+              }
+            },
+            {
+              "type": "Microsoft.Cdn/profiles/originGroups/origins",
+              "apiVersion": "2021-06-01",
+              "name": "[format('{0}/{1}/{2}', parameters('afdProfileName'), parameters('afdOriginGroupName'), parameters('afdOriginsName'))]",
+              "properties": {
+                "hostName": "[format('{0}.azurewebsites.net', parameters('appServiceWebAppName'))]",
+                "httpPort": 80,
+                "httpsPort": 443,
+                "originHostHeader": "[format('{0}.azurewebsites.net', parameters('appServiceWebAppName'))]",
+                "priority": 1,
+                "weight": 1000,
+                "enabledState": "[parameters('originEnabledState')]",
+                "enforceCertificateNameCheck": true
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/originGroups', parameters('afdProfileName'), parameters('afdOriginGroupName'))]"
+              ],
+              "metadata": {
+                "description": "List of origin and mapping to Origin Groups"
+              }
+            },
+            {
+              "type": "Microsoft.Cdn/profiles/ruleSets",
+              "apiVersion": "2022-05-01-preview",
+              "name": "[format('{0}/{1}', parameters('afdProfileName'), parameters('afdRulesetName'))]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/afdEndpoints', parameters('afdProfileName'), parameters('afdEndpointName'))]",
+                "[resourceId('Microsoft.Cdn/profiles', parameters('afdProfileName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Cdn/profiles/ruleSets/rules",
+              "apiVersion": "2022-05-01-preview",
+              "name": "[format('{0}/{1}/{2}', parameters('afdProfileName'), parameters('afdRulesetName'), 'defaultrule')]",
+              "properties": {
+                "order": 1,
+                "conditions": [
+                  {
+                    "name": "UrlPath",
+                    "parameters": {
+                      "typeName": "DeliveryRuleUrlPathMatchConditionParameters",
+                      "operator": "BeginsWith",
+                      "negateCondition": false,
+                      "matchValues": [
+                        "wp-content/uploads/"
+                      ],
+                      "transforms": [
+                        "Lowercase"
+                      ]
+                    }
+                  }
+                ],
+                "actions": [
+                  {
+                    "name": "RouteConfigurationOverride",
+                    "parameters": {
+                      "typeName": "DeliveryRuleRouteConfigurationOverrideActionParameters",
+                      "cacheConfiguration": {
+                        "isCompressionEnabled": "Enabled",
+                        "queryStringCachingBehavior": "UseQueryString",
+                        "cacheBehavior": "OverrideAlways",
+                        "cacheDuration": "3.00:00:00"
+                      },
+                      "originGroupOverride": {
+                        "originGroup": {
+                          "id": "[resourceId('Microsoft.Cdn/profiles/originGroups', parameters('afdProfileName'), parameters('afdOriginGroupName'))]"
+                        },
+                        "forwardingProtocol": "MatchRequest"
+                      }
+                    }
+                  }
+                ],
+                "matchProcessingBehavior": "Stop"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/originGroups', parameters('afdProfileName'), parameters('afdOriginGroupName'))]",
+                "[resourceId('Microsoft.Cdn/profiles/ruleSets', parameters('afdProfileName'), parameters('afdRulesetName'))]"
+              ],
+              "metadata": {
+                "description": "Default Rule for Ruleset"
+              }
+            },
+            {
+              "type": "Microsoft.Cdn/profiles/ruleSets/rules",
+              "apiVersion": "2022-05-01-preview",
+              "name": "[format('{0}/{1}/{2}', parameters('afdProfileName'), parameters('afdRulesetName'), 'CacheStaticFiles')]",
+              "properties": {
+                "order": 2,
+                "conditions": [
+                  {
+                    "name": "UrlPath",
+                    "parameters": {
+                      "typeName": "DeliveryRuleUrlPathMatchConditionParameters",
+                      "operator": "BeginsWith",
+                      "negateCondition": false,
+                      "matchValues": [
+                        "wp-includes/",
+                        "wp-content/themes/"
+                      ],
+                      "transforms": [
+                        "Lowercase"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "UrlFileExtension",
+                    "parameters": {
+                      "typeName": "DeliveryRuleUrlFileExtensionMatchConditionParameters",
+                      "operator": "Equal",
+                      "negateCondition": false,
+                      "matchValues": [
+                        "css",
+                        "js",
+                        "gif",
+                        "png",
+                        "jpg",
+                        "ico",
+                        "ttf",
+                        "otf",
+                        "woff",
+                        "woff2"
+                      ],
+                      "transforms": [
+                        "Lowercase"
+                      ]
+                    }
+                  }
+                ],
+                "actions": [
+                  {
+                    "name": "RouteConfigurationOverride",
+                    "parameters": {
+                      "typeName": "DeliveryRuleRouteConfigurationOverrideActionParameters",
+                      "cacheConfiguration": {
+                        "isCompressionEnabled": "Enabled",
+                        "queryStringCachingBehavior": "UseQueryString",
+                        "cacheBehavior": "OverrideAlways",
+                        "cacheDuration": "3.00:00:00"
+                      }
+                    }
+                  }
+                ],
+                "matchProcessingBehavior": "Stop"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/ruleSets', parameters('afdProfileName'), parameters('afdRulesetName'))]",
+                "[resourceId('Microsoft.Cdn/profiles/ruleSets/rules', parameters('afdProfileName'), parameters('afdRulesetName'), 'defaultrule')]"
+              ],
+              "metadata": {
+                "description": "CacheStaticFiles Ruleset"
+              }
+            }
+          ],
+          "outputs": {
+            "id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Cdn/profiles', parameters('afdProfileName'))]",
+              "metadata": {
+                "description": "Profile Id"
+              }
+            },
+            "hostname": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Cdn/profiles/afdEndpoints', parameters('afdProfileName'), parameters('afdEndpointName')), '2021-06-01').hostName]",
+              "metadata": {
+                "description": "Endpoint Hostname"
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('appServiceWebAppName'))]",
+        "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('serverName'))]"
+      ],
+      "metadata": {
+        "description": "Create Azure Front Door WAF Profile"
+      }
+    }
+  ],
+  "outputs": {
+    "defaultHostname": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Web/sites', parameters('appServiceWebAppName')), '2022-03-01').defaultHostName]",
+      "metadata": {
+        "description": "Default hostname of the app."
+      }
+    }
+  }
+}

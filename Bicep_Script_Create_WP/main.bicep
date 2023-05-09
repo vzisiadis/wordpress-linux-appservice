@@ -47,7 +47,7 @@ param numberOfWorkers int = 1
 param kind string = 'linux'
 param reserved bool = true
 param alwaysOn bool = true
-param linuxFxVersion string = 'DOCKER|mcr.microsoft.com/appsvc/wordpress-alpine-php:latest'
+param linuxFxVersion string = 'DOCKER|mcr.microsoft.com/appsvc/wordpress-alpine-php:8.2'
 param dockerRegistryUrl string = 'https://mcr.microsoft.com'
 param storageSizeGB int = 128
 
@@ -112,9 +112,9 @@ param subnetForApp string = 'wp-app-subnet'
 param subnetForDb string = 'wp-db-subnet'
 param privateDnsZoneNameForDb string = 'wp-appsvc-privatelink.mysql.database.azure.com'
 
-param vnetAddress string = '10.0.0.0/16'
-param subnetAddressForApp string = '10.0.0.0/24'
-param subnetAddressForDb string = '10.0.1.0/24'
+// param vnetAddress string = '10.0.0.0/16'
+// param subnetAddressForApp string = '10.0.0.0/24'
+// param subnetAddressForDb string = '10.0.1.0/24'
 
 /*
 WordPress App Storage Account
@@ -238,7 +238,7 @@ resource appServiceWebApp 'Microsoft.Web/sites@2022-03-01' = {
         }
         {
           name: 'WEBSITES_CONTAINER_START_TIME_LIMIT'
-          value: '900'
+          value: '1800'
         }
         {
           name: 'WORDPRESS_LOCALE_CODE'
@@ -280,6 +280,10 @@ resource appServiceWebApp 'Microsoft.Web/sites@2022-03-01' = {
           name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
           value: '${deployAzureStorage}'
         }
+        {
+          name: 'WORDPRESS_LOCAL_STORAGE_CACHE_ENABLED'
+          value: 'true'
+        }        
       ]
       connectionStrings: []
       linuxFxVersion: linuxFxVersion
@@ -359,47 +363,51 @@ resource wordpressDatabase 'Microsoft.DBforMySQL/flexibleServers/databases@2021-
 }
 
 @description('Virtual network')
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-05-01' = {
-  location: location
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-05-01' existing = {
   name: vnetName
-  properties: {
-    addressSpace: {
-      addressPrefixes: [
-        vnetAddress
-      ]
-    }
-    subnets: [
-      {
-        name: subnetForApp
-        properties: {
-          addressPrefix: subnetAddressForApp
-          delegations: [
-            {
-              name: 'dlg-appService'
-              properties: {
-                serviceName: 'Microsoft.Web/serverFarms'
-              }
-            }
-          ]
-        }
-      }
-      {
-        name: subnetForDb
-        properties: {
-          addressPrefix: subnetAddressForDb
-          delegations: [
-            {
-              name: 'dlg-database'
-              properties: {
-                serviceName: 'Microsoft.DBforMySQL/flexibleServers'
-              }
-            }
-          ]
-        }
-      }
-    ]
-  }
- }
+}
+
+// resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-05-01' = {
+//   location: location
+//   name: vnetName
+//   properties: {
+//     addressSpace: {
+//       addressPrefixes: [
+//         vnetAddress
+//       ]
+//     }
+//     subnets: [
+//       {
+//         name: subnetForApp
+//         properties: {
+//           addressPrefix: subnetAddressForApp
+//           delegations: [
+//             {
+//               name: 'dlg-appService'
+//               properties: {
+//                 serviceName: 'Microsoft.Web/serverFarms'
+//               }
+//             }
+//           ]
+//         }
+//       }
+//       {
+//         name: subnetForDb
+//         properties: {
+//           addressPrefix: subnetAddressForDb
+//           delegations: [
+//             {
+//               name: 'dlg-database'
+//               properties: {
+//                 serviceName: 'Microsoft.DBforMySQL/flexibleServers'
+//               }
+//             }
+//           ]
+//         }
+//       }
+//     ]
+//   }
+//  }
 
 @description('Private DNS Zone for Database')
 resource privateDnsZoneMySql 'Microsoft.Network/privateDnsZones@2020-06-01' = {
@@ -452,6 +460,8 @@ module cdnProfile './modules/cdn.bicep' = if (deployCDN) {
     cdnProfileName:cdnProfileName
     cdnEndpointName:cdnEndpointName
     appServiceWebAppName:appServiceWebAppName
+    storageAccountName: storageAccountName
+    blobContainerName: appServiceStorageContainerName
   }
   dependsOn: [
     mySQLserver
